@@ -5,11 +5,9 @@ import {
   Search,
   Plus,
   Edit,
-  ChevronDown,
   X,
   Calendar,
   Clock,
-  User,
   UserCheck,
   Building2,
   CheckCircle,
@@ -24,9 +22,6 @@ const AllAppointments = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
-  const [filterStatus, setFilterStatus] = useState("All");
-  const [filterDate, setFilterDate] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState(null);
   const [formData, setFormData] = useState({
@@ -39,7 +34,7 @@ const AllAppointments = () => {
   });
   const [toast, setToast] = useState({ message: "", type: "" });
 
-  // Helper functions to get names - Pehle define karo
+  // Helper functions to get names
   const getPatientName = (patientId) => {
     if (!patientId) return "N/A";
     if (typeof patientId === "object") return patientId.userId?.fullName;
@@ -65,16 +60,16 @@ const AllAppointments = () => {
   const getStatusConfig = (status) => {
     const configs = {
       Scheduled: {
-        color: "bg-blue-100 text-blue-800 border-blue-200",
-        icon: <Calendar className="h-3 w-3" />,
+        color: "bg-blue-100 text-blue-800 border border-blue-200",
+        icon: <Calendar className="h-4 w-4" />,
       },
       Completed: {
-        color: "bg-green-100 text-green-800 border-green-200",
-        icon: <CheckCircle className="h-3 w-3" />,
+        color: "bg-green-100 text-green-800 border border-green-200",
+        icon: <CheckCircle className="h-4 w-4" />,
       },
       Cancelled: {
-        color: "bg-red-100 text-red-800 border-red-200",
-        icon: <XCircle className="h-3 w-3" />,
+        color: "bg-red-100 text-red-800 border border-red-200",
+        icon: <XCircle className="h-4 w-4" />,
       },
     };
     return configs[status] || configs.Scheduled;
@@ -113,23 +108,15 @@ const AllAppointments = () => {
     setTimeout(() => setToast({ message: "", type: "" }), 3000);
   };
 
-  // Filter appointments - Ab helper functions available hain
+  // Filter appointments
   const filteredAppointments = appointments.filter((appointment) => {
     const patientName = getPatientName(appointment.patientId);
     const doctorName = getDoctorName(appointment.doctorId);
     const roomNum = getRoomNumber(appointment.roomId);
 
-
-    const matchesSearch = [patientName, doctorName, roomNum].some((field) =>
+    return [patientName, doctorName, roomNum].some((field) =>
       field.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
-    const matchesStatus =
-      filterStatus === "All" || appointment.status === filterStatus;
-    const matchesDate =
-      !filterDate || appointment.date.split("T")[0] === filterDate;
-
-    return matchesSearch && matchesStatus && matchesDate;
   });
 
   // Handle form submission
@@ -222,373 +209,484 @@ const AllAppointments = () => {
       month: "short",
       day: "numeric",
     });
+
   const formatTime = (timeSlot) => timeSlot || "Not specified";
 
-  // Appointment Card Component
-  const AppointmentCard = ({ appointment }) => {
-    const statusConfig = getStatusConfig(appointment.status);
-
-    return (
-      <Card
-        key={appointment._id}
-        className="p-4 hover:shadow-lg transition-shadow"
-      >
-        <div className="flex justify-between items-start mb-3">
-          <div>
-            <h3 className="font-semibold text-gray-900">
-              {getPatientName(appointment.patientId)}
-            </h3>
-            <p className="text-sm text-gray-600">Patient</p>
-          </div>
-          <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusConfig.color}`}
-          >
-            {statusConfig.icon}
-            <span className="ml-1">{appointment.status}</span>
-          </span>
-        </div>
-
-        <div className="space-y-2 text-sm">
-          <div className="flex items-center">
-            <UserCheck className="h-4 w-4 text-gray-400 mr-2" />
-            <span>{getDoctorName(appointment.doctorId)}</span>
-          </div>
-          <div className="flex items-center">
-            <Calendar className="h-4 w-4 text-gray-400 mr-2" />
-            <span>{formatDate(appointment.date)}</span>
-          </div>
-          <div className="flex items-center">
-            <Clock className="h-4 w-4 text-gray-400 mr-2" />
-            <span>{formatTime(appointment.timeSlot)}</span>
-          </div>
-          <div className="flex items-center">
-            <Building2 className="h-4 w-4 text-gray-400 mr-2" />
-            <span>Room {getRoomNumber(appointment.roomId)}</span>
-          </div>
-        </div>
-
-        <div className="flex justify-end space-x-2 mt-4">
-          {appointment.status === "Scheduled" && (
-            <>
-              <Button
-                size="sm"
-                onClick={() =>
-                  openModal({ ...appointment, status: "Completed" })
-                }
-                className="text-green-600 border-green-200 hover:bg-green-50"
-              >
-                Complete
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => handleCancel(appointment._id)}
-                className="text-red-600 border-red-200 hover:bg-red-50"
-              >
-                Cancel
-              </Button>
-            </>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => openModal(appointment)}
-          >
-            <Edit className="h-3 w-3" />
-          </Button>
-        </div>
-      </Card>
-    );
-  };
-
   return (
-    <div>
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Appointments Management
-        </h1>
-        <p className="mt-2 text-sm text-gray-600">
-          Manage all patient appointments and schedules
-        </p>
-      </div>
-
-      {/* Toast */}
-      {toast.message && (
-        <div
-          className={`fixed top-5 right-5 px-4 py-2 rounded shadow-lg z-50 ${
-            toast.type === "error"
-              ? "bg-red-500 text-white"
-              : "bg-green-500 text-white"
-          }`}
-        >
-          {toast.message}
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">
+            Appointments Management
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Manage all patient appointments and schedules
+          </p>
         </div>
-      )}
 
-      {/* Quick Stats - Moved to top */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {["Scheduled", "Completed", "Cancelled", "Total"].map((stat) => (
-          <Card key={stat}>
-            <CardContent className="p-4 text-center">
-              <div
-                className={`text-2xl font-semibold ${
-                  stat === "Scheduled"
-                    ? "text-blue-600"
-                    : stat === "Completed"
-                    ? "text-green-600"
-                    : stat === "Cancelled"
-                    ? "text-red-600"
-                    : "text-gray-600"
-                }`}
-              >
-                {stat === "Total"
-                  ? appointments.length
-                  : appointments.filter((a) => a.status === stat).length}
+        {/* Toast */}
+        {toast.message && (
+          <div
+            className={`fixed top-5 right-5 px-4 py-2 rounded shadow-lg z-50 ${
+              toast.type === "error"
+                ? "bg-red-500 text-white"
+                : "bg-green-500 text-white"
+            }`}
+          >
+            {toast.message}
+          </div>
+        )}
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="group bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] cursor-pointer">
+            <div className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600 mb-2">
+                    Total Appointments
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900 mb-2">
+                    {appointments.length}
+                  </p>
+                  <div className="flex items-center text-green-600 text-sm font-medium">
+                    <span>All Time</span>
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg bg-blue-500 transition-all duration-300 group-hover:scale-110">
+                  <Calendar className="h-6 w-6 text-white" />
+                </div>
               </div>
-              <div className="text-sm text-gray-600 mt-1">{stat}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
-              <div className="relative flex-1 sm:w-80">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search by patient, doctor or room..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-
-              <Button
-                variant="outline"
-                className="flex items-center space-x-2"
-                onClick={() => setShowFilters(!showFilters)}
-              >
-                <span>Filters</span>
-                <ChevronDown
-                  className={`h-4 w-4 transform transition-transform ${
-                    showFilters ? "rotate-180" : ""
-                  }`}
-                />
-              </Button>
             </div>
-
-            <Button
-              onClick={() => openModal()}
-              className="flex items-center space-x-2"
-            >
-              <Plus className="h-4 w-4" />
-              <span>New Appointment</span>
-            </Button>
           </div>
 
-          {/* Filters */}
-          {showFilters && (
-            <div className="mt-4 bg-gray-50 border rounded-md p-4 grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status
-                </label>
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+          <div className="group bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] cursor-pointer">
+            <div className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600 mb-2">
+                    Scheduled
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900 mb-2">
+                    {
+                      appointments.filter((a) => a.status === "Scheduled")
+                        .length
+                    }
+                  </p>
+                  <div className="flex items-center text-blue-600 text-sm font-medium">
+                    <span>Upcoming</span>
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg bg-blue-500 transition-all duration-300 group-hover:scale-110">
+                  <Calendar className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="group bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] cursor-pointer">
+            <div className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600 mb-2">
+                    Completed
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900 mb-2">
+                    {
+                      appointments.filter((a) => a.status === "Completed")
+                        .length
+                    }
+                  </p>
+                  <div className="flex items-center text-green-600 text-sm font-medium">
+                    <span>Done</span>
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg bg-green-500 transition-all duration-300 group-hover:scale-110">
+                  <CheckCircle className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="group bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] cursor-pointer">
+            <div className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-gray-600 mb-2">
+                    Cancelled
+                  </p>
+                  <p className="text-3xl font-bold text-gray-900 mb-2">
+                    {
+                      appointments.filter((a) => a.status === "Cancelled")
+                        .length
+                    }
+                  </p>
+                  <div className="flex items-center text-red-600 text-sm font-medium">
+                    <span>Cancelled</span>
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg bg-red-500 transition-all duration-300 group-hover:scale-110">
+                  <XCircle className="h-6 w-6 text-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+          {/* Header with decorative line */}
+          <div className="relative h-1 bg-blue-500 rounded-t-lg"></div>
+
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Calendar className="w-5 h-5 text-blue-600" />
+                </div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  All Appointments ({filteredAppointments.length})
+                </h2>
+              </div>
+
+              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+                {/* Search */}
+                <div className="relative flex-1 sm:w-80">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by patient, doctor or room..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+
+                {/* New Appointment Button */}
+                <Button
+                  onClick={() => openModal()}
+                  className="flex items-center space-x-2"
                 >
-                  <option value="All">All Status</option>
-                  <option value="Scheduled">Scheduled</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Cancelled">Cancelled</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date
-                </label>
-                <input
-                  type="date"
-                  value={filterDate}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-                />
+                  <Plus className="h-4 w-4" />
+                  <span>New Appointment</span>
+                </Button>
               </div>
             </div>
-          )}
-        </CardHeader>
+          </CardHeader>
 
-        <CardContent>
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-2 text-gray-500">Loading appointments...</p>
-            </div>
-          ) : filteredAppointments.length === 0 ? (
-            <div className="text-center py-12">
-              <Calendar className="mx-auto h-12 w-12 text-gray-400" />
-              <p className="mt-2 text-gray-500">No appointments found</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredAppointments.map((appointment) => (
-                <AppointmentCard
-                  key={appointment._id}
-                  appointment={appointment}
-                />
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          <CardContent>
+            {loading ? (
+              <div className="text-center py-8 text-gray-500">
+                Loading appointments...
+              </div>
+            ) : filteredAppointments.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <Calendar className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                <p className="font-medium">No appointments found.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+                {filteredAppointments.map((appointment) => {
+                  const statusConfig = getStatusConfig(appointment.status);
 
-      {/* Modal */}
+                  return (
+                    <div
+                      key={appointment._id}
+                      className="group bg-white rounded-xl border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 p-6"
+                    >
+                      {/* Appointment Header */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-gray-900 mb-1">
+                            {getPatientName(appointment.patientId)}
+                          </h3>
+                          <p className="text-sm text-gray-600 font-medium">
+                            Patient
+                          </p>
+                        </div>
+                        <div className="flex flex-col items-end space-y-2">
+                          <span
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${statusConfig.color}`}
+                          >
+                            {statusConfig.icon}
+                            <span className="ml-1">{appointment.status}</span>
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Enhanced Appointment Details */}
+                      <div className="space-y-3 mb-4">
+                        <div className="flex items-center p-2 bg-gray-50 rounded-lg border border-gray-100">
+                          <UserCheck className="h-4 w-4 mr-3 text-blue-600 flex-shrink-0" />
+                          <div>
+                            <div className="text-xs text-gray-500 font-medium">
+                              Doctor
+                            </div>
+                            <div className="text-sm font-semibold text-gray-900">
+                              {getDoctorName(appointment.doctorId)}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                            <div className="flex items-center">
+                              <Calendar className="h-3 w-3 mr-2 text-blue-600 flex-shrink-0" />
+                              <div>
+                                <div className="text-xs text-gray-500">
+                                  Date
+                                </div>
+                                <div className="text-sm font-semibold text-gray-900">
+                                  {formatDate(appointment.date)}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                            <div className="flex items-center">
+                              <Clock className="h-3 w-3 mr-2 text-blue-600 flex-shrink-0" />
+                              <div>
+                                <div className="text-xs text-gray-500">
+                                  Time
+                                </div>
+                                <div className="text-sm font-semibold text-gray-900">
+                                  {formatTime(appointment.timeSlot)}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                          <div className="flex items-center">
+                            <Building2 className="h-3 w-3 mr-2 text-blue-600 flex-shrink-0" />
+                            <div>
+                              <div className="text-xs text-gray-500">Room</div>
+                              <div className="text-sm font-semibold text-gray-900">
+                                Room {getRoomNumber(appointment.roomId)}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Enhanced Action Buttons */}
+                      <div className="flex justify-end space-x-2 pt-3 border-t border-gray-200">
+                        {appointment.status === "Scheduled" && (
+                          <>
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                openModal({
+                                  ...appointment,
+                                  status: "Completed",
+                                })
+                              }
+                              className="bg-green-600 hover:bg-green-700 text-white font-medium"
+                            >
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Complete
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => handleCancel(appointment._id)}
+                              className="bg-red-600 hover:bg-red-700 text-white font-medium"
+                            >
+                              <XCircle className="h-3 w-3 mr-1" />
+                              Cancel
+                            </Button>
+                          </>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openModal(appointment)}
+                          className="font-medium"
+                        >
+                          <Edit className="h-3 w-3 mr-1" />
+                          Edit
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </div>
+      </div>
+
+      {/* Enhanced Modal */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-          <div className="bg-white p-6 rounded-xl w-96">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">
-                {editingAppointment ? "Edit Appointment" : "New Appointment"}
-              </h3>
-              <X
-                className="h-5 w-5 cursor-pointer"
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Calendar className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    {editingAppointment
+                      ? "Edit Appointment"
+                      : "New Appointment"}
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    {editingAppointment
+                      ? "Update appointment details"
+                      : "Create a new appointment"}
+                  </p>
+                </div>
+              </div>
+              <button
                 onClick={() => {
                   setShowModal(false);
                   resetForm();
                 }}
-              />
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-3">
-              {!editingAppointment && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Doctor
-                    </label>
-                    <select
-                      value={formData.doctorId}
-                      onChange={(e) =>
-                        setFormData({ ...formData, doctorId: e.target.value })
-                      }
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    >
-                      <option value="">Select Doctor</option>
-                      {doctors.map((doctor) => (
-                        <option key={doctor._id} value={doctor._id}>
-                          {doctor.userId?.fullName} - {doctor.specialization}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Patient
-                    </label>
-                    <select
-                      value={formData.patientId}
-                      onChange={(e) =>
-                        setFormData({ ...formData, patientId: e.target.value })
-                      }
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    >
-                      <option value="">Select Patient</option>
-                      {patients.map((patient) => (
-                        <option key={patient._id} value={patient._id}>
-                          {patient.userId?.fullName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Room
-                    </label>
-                    <select
-                      value={formData.roomId}
-                      onChange={(e) =>
-                        setFormData({ ...formData, roomId: e.target.value })
-                      }
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    >
-                      <option value="">Select Room</option>
-                      {rooms
-                        .filter((room) => room.isAvailable)
-                        .map((room) => (
-                          <option key={room._id} value={room._id}>
-                            Room {room.roomNum} - {room.type}
+
+            {/* Modal Content */}
+            <div className="overflow-y-auto flex-1 p-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {!editingAppointment && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Doctor
+                      </label>
+                      <select
+                        value={formData.doctorId}
+                        onChange={(e) =>
+                          setFormData({ ...formData, doctorId: e.target.value })
+                        }
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        required
+                      >
+                        <option value="">Select Doctor</option>
+                        {doctors.map((doctor) => (
+                          <option key={doctor._id} value={doctor._id}>
+                            {doctor.userId?.fullName} - {doctor.specialization}
                           </option>
                         ))}
-                    </select>
-                  </div>
-                </>
-              )}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date
-                </label>
-                <input
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, date: e.target.value })
-                  }
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Time Slot
-                </label>
-                <input
-                  type="text"
-                  value={formData.timeSlot}
-                  onChange={(e) =>
-                    setFormData({ ...formData, timeSlot: e.target.value })
-                  }
-                  placeholder="e.g., 10:00 AM - 11:00 AM"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status
-                </label>
-                <select
-                  value={formData.status}
-                  onChange={(e) =>
-                    setFormData({ ...formData, status: e.target.value })
-                  }
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="Scheduled">Scheduled</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Cancelled">Cancelled</option>
-                </select>
-              </div>
-              <div className="flex justify-end space-x-3 mt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowModal(false);
-                    resetForm();
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  {editingAppointment ? "Update" : "Create"}
-                </Button>
-              </div>
-            </form>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Patient
+                      </label>
+                      <select
+                        value={formData.patientId}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            patientId: e.target.value,
+                          })
+                        }
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        required
+                      >
+                        <option value="">Select Patient</option>
+                        {patients.map((patient) => (
+                          <option key={patient._id} value={patient._id}>
+                            {patient.userId?.fullName}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Room
+                      </label>
+                      <select
+                        value={formData.roomId}
+                        onChange={(e) =>
+                          setFormData({ ...formData, roomId: e.target.value })
+                        }
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        required
+                      >
+                        <option value="">Select Room</option>
+                        {rooms
+                          .filter((room) => room.isAvailable)
+                          .map((room) => (
+                            <option key={room._id} value={room._id}>
+                              Room {room.roomNum} - {room.type}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  </>
+                )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) =>
+                      setFormData({ ...formData, date: e.target.value })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Time Slot
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.timeSlot}
+                    onChange={(e) =>
+                      setFormData({ ...formData, timeSlot: e.target.value })
+                    }
+                    placeholder="e.g., 10:00 AM - 11:00 AM"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Status
+                  </label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) =>
+                      setFormData({ ...formData, status: e.target.value })
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  >
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </form>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowModal(false);
+                  resetForm();
+                }}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleSubmit}>
+                {editingAppointment ? "Update" : "Create"}
+              </Button>
+            </div>
           </div>
         </div>
       )}

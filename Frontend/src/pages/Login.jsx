@@ -1,5 +1,18 @@
 import React, { useState, useContext } from "react";
-import { Mail, Lock, Heart, X, Eye, EyeOff, ArrowRight } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  Heart,
+  X,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Stethoscope,
+  Shield,
+  Clock,
+  Sparkles,
+  Zap,
+} from "lucide-react";
 import { assets } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
@@ -49,27 +62,31 @@ const InputField = ({
   return (
     <div className="relative group">
       <div
-        className={`absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl transition-all duration-300 ${
+        className={`absolute inset-0 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 rounded-xl transition-all duration-500 ${
           isFocused ? "opacity-100 scale-100" : "opacity-0 scale-95"
         }`}
       />
-      <Icon
-        className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition-colors duration-200 ${
-          isFocused ? "text-blue-600" : "text-gray-400"
-        }`}
-      />
+      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+        <Icon
+          className={`w-5 h-5 transition-all duration-300 ${
+            isFocused
+              ? "text-blue-600 scale-110 animate-pulse-slow"
+              : "text-gray-400 scale-100"
+          }`}
+        />
+      </div>
       <input
         {...props}
         type={type}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className="relative w-full border border-gray-200/80 bg-white/80 text-gray-800 rounded-2xl pl-12 pr-10 py-4 focus:ring-0 focus:outline-none focus:bg-white transition-all duration-200 placeholder:text-gray-400 shadow-sm backdrop-blur-sm font-medium"
+        className="relative w-full border-2 border-gray-200/60 bg-white text-gray-800 rounded-xl pl-12 pr-12 py-3.5 focus:border-blue-500 focus:ring-0 focus:outline-none transition-all duration-300 placeholder:text-gray-400 shadow-sm hover:shadow-md hover:border-gray-300 font-medium text-sm"
       />
       {showPasswordToggle && (
         <button
           type="button"
           onClick={onTogglePassword}
-          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-150 p-1"
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-all duration-200 p-1 hover:scale-110 hover:rotate-12 z-10"
         >
           {type === "password" ? (
             <EyeOff className="w-5 h-5" />
@@ -84,7 +101,7 @@ const InputField = ({
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login: loginContext , user } = useContext(AuthContext);
+  const { login: loginContext, user } = useContext(AuthContext);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -115,10 +132,7 @@ const Login = () => {
           type: "success",
         });
         navigate("/admin/dashboard");
-      }
-      else if (userData.role === "Doctor") {
-       
-        
+      } else if (userData.role === "Doctor") {
         const userDataObj = {
           id: userData._id,
           patientId: patientData?._id || null,
@@ -157,13 +171,208 @@ const Login = () => {
   const handleCloseNotification = () => setNotification(null);
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
-  const fillDemoCredentials = () => {
-    setEmail("test@user.com");
-    setPassword("password");
-  };
+
+
+  const features = [
+    {
+      icon: Shield,
+      text: "Secure & Private Portal",
+      color: "text-emerald-400",
+    },
+    { icon: Clock, text: "24/7 Medical Access", color: "text-blue-400" },
+    { icon: Heart, text: "Personal Health Records", color: "text-rose-400" },
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/80 to-indigo-100/90 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Advanced CSS Animations */}
+      <style>{`
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0) translateX(0);
+            opacity: 0.6;
+          }
+          50% {
+            transform: translateY(-20px) translateX(10px);
+            opacity: 1;
+          }
+        }
+
+        @keyframes float-slow {
+          0%, 100% {
+            transform: translateY(0) scale(1);
+          }
+          50% {
+            transform: translateY(-30px) scale(1.05);
+          }
+        }
+
+        @keyframes pulse-slow {
+          0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.8;
+            transform: scale(1.02);
+          }
+        }
+
+        @keyframes shimmer {
+          0% {
+            background-position: -1000px 0;
+          }
+          100% {
+            background-position: 1000px 0;
+          }
+        }
+
+        @keyframes slide-in-right {
+          from {
+            opacity: 0;
+            transform: translateX(40px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes slide-in-left {
+          from {
+            opacity: 0;
+            transform: translateX(-40px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes slide-in-up {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes scale-in {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        @keyframes rotate-slow {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        @keyframes bounce-subtle {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-8px);
+          }
+        }
+
+        @keyframes glow-pulse {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+          }
+          50% {
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.6), 0 0 40px rgba(59, 130, 246, 0.3);
+          }
+        }
+
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+
+        .animate-float-slow {
+          animation: float-slow 8s ease-in-out infinite;
+        }
+
+        .animate-pulse-slow {
+          animation: pulse-slow 3s ease-in-out infinite;
+        }
+
+        .animate-shimmer {
+          animation: shimmer 3s linear infinite;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.5) 50%,
+            transparent 100%
+          );
+          background-size: 1000px 100%;
+        }
+
+        .animate-slide-in-right {
+          animation: slide-in-right 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-slide-in-left {
+          animation: slide-in-left 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-slide-in-up {
+          animation: slide-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-fade-in {
+          animation: fade-in 0.8s ease-out forwards;
+        }
+
+        .animate-scale-in {
+          animation: scale-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-rotate-slow {
+          animation: rotate-slow 20s linear infinite;
+        }
+
+        .animate-bounce-subtle {
+          animation: bounce-subtle 2.5s ease-in-out infinite;
+        }
+
+        .animate-glow-pulse {
+          animation: glow-pulse 3s ease-in-out infinite;
+        }
+
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        .delay-500 { animation-delay: 0.5s; }
+        .delay-600 { animation-delay: 0.6s; }
+        .delay-700 { animation-delay: 0.7s; }
+        .delay-800 { animation-delay: 0.8s; }
+        .delay-1000 { animation-delay: 1s; }
+      `}</style>
+
       {notification && (
         <AlertModal
           message={notification.message}
@@ -172,149 +381,199 @@ const Login = () => {
         />
       )}
 
-      <div className="flex w-full max-w-6xl shadow-2xl bg-white rounded-3xl overflow-hidden min-h-[600px]">
+      {/* Animated background elements */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl animate-pulse-slow" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-400/10 rounded-full blur-3xl animate-pulse-slow delay-700" />
+      <div className="absolute top-1/2 left-1/3 w-72 h-72 bg-purple-400/10 rounded-full blur-3xl animate-float-slow delay-300" />
+
+      {/* Floating particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-3 h-3 bg-blue-400/50 rounded-full animate-float" />
+        <div className="absolute top-1/3 right-1/4 w-4 h-4 bg-indigo-400/50 rounded-full animate-float delay-200" />
+        <div className="absolute bottom-1/4 left-1/3 w-2 h-2 bg-purple-400/50 rounded-full animate-float delay-400" />
+        <div className="absolute bottom-1/3 right-1/3 w-3 h-3 bg-blue-400/50 rounded-full animate-float delay-300" />
+      </div>
+
+      <div className="flex w-full max-w-5xl shadow-2xl bg-white rounded-3xl overflow-hidden h-[85vh] max-h-[700px] relative z-10 backdrop-blur-sm animate-scale-in">
         {/* Left Visual Section */}
-        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 opacity-90 z-10" />
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden animate-slide-in-left">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-900 opacity-95 z-10" />
+
+          {/* Animated pattern overlay */}
+          <div className="absolute inset-0 z-[11] opacity-10">
+            <div
+              className="absolute inset-0 animate-rotate-slow"
+              style={{
+                backgroundImage: `radial-gradient(circle at 20px 20px, white 2px, transparent 0)`,
+                backgroundSize: "40px 40px",
+              }}
+            />
+          </div>
+
+          {/* Shimmer effect */}
+          <div className="absolute inset-0 z-[12] opacity-20 animate-shimmer" />
+
           <img
             src={assets.simpleIMG}
-            alt="Modern Medical Illustration"
-            className="absolute inset-0 w-full h-full object-cover transform scale-110"
+            alt="Medical Team"
+            className="absolute inset-0 w-full h-full object-cover"
           />
+
           <div className="relative z-20 w-full p-12 flex flex-col justify-between text-white">
-            <div>
-              <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm mb-8">
-                <Heart className="w-7 h-7" />
+            {/* Header with animated icon */}
+            <div className="opacity-0 animate-fade-in delay-200">
+              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-md mb-8 group hover:bg-white/30 transition-all duration-300 cursor-pointer animate-bounce-subtle">
+                <Stethoscope className="w-8 h-8 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300" />
               </div>
-              <h1 className="text-5xl font-bold leading-tight mb-6">
-                Welcome to <br /> HealthCare+
+              <h1 className="text-5xl font-bold leading-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100">
+                Welcome Back to <br /> Your Health Hub
               </h1>
-              <p className="text-blue-100 text-lg leading-relaxed max-w-md">
-                Your journey to better health starts here. Access your medical
-                records, schedule appointments, and connect with healthcare
-                providers.
+              <p className="text-blue-100 text-lg leading-relaxed max-w-md font-light">
+                Access your personalized healthcare dashboard, manage
+                appointments, and continue your wellness journey.
               </p>
             </div>
+
+            {/* Animated Features List */}
+            <div className="space-y-4">
+              {features.map((feature, i) => (
+                <div
+                  key={i}
+                  className="flex items-center space-x-4 group hover:translate-x-3 transition-all duration-300 opacity-0 animate-slide-in-right"
+                  style={{
+                    animationDelay: `${i * 150 + 600}ms`,
+                    animationFillMode: "forwards",
+                  }}
+                >
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-md group-hover:bg-white/30 group-hover:scale-110 transition-all duration-300 animate-pulse-slow">
+                    <feature.icon className={`w-5 h-5 ${feature.color}`} />
+                  </div>
+                  <span className="text-blue-50 font-medium group-hover:text-white transition-colors duration-300">
+                    {feature.text}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Decorative bottom element */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shimmer" />
           </div>
         </div>
 
         {/* Right Login Form */}
-        <div className="w-full lg:w-1/2 p-8 md:p-12 flex flex-col">
-          <div className="text-center lg:text-left mb-8">
-            <h2 className="text-4xl font-bold text-gray-900 mb-3">
-              Welcome Back
-            </h2>
-            <p className="text-gray-600 text-lg">
-              Sign in to your account to continue
-            </p>
-          </div>
-
-          {/* Demo Credentials */}
-          <div
-            onClick={fillDemoCredentials}
-            className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-4 mb-6 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-blue-300 group"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                  <ArrowRight className="w-4 h-4 text-blue-600" />
+        <div className="w-full lg:w-1/2 p-8 lg:p-10 flex flex-col justify-center bg-gradient-to-br from-white to-gray-50/50 animate-slide-in-right overflow-y-auto">
+          <div className="max-w-md mx-auto w-full">
+            {/* Header Section */}
+            <div className="text-center lg:text-left mb-6 opacity-0 animate-fade-in delay-300">
+              <div className="inline-block mb-3">
+                <div className="flex items-center gap-3 mb-2">
+                  <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent">
+                    Sign In
+                  </h2>
+                  <Zap className="w-7 h-7 text-indigo-600 animate-bounce-subtle" />
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-blue-800">
-                    Demo Credentials
-                  </p>
-                  <p className="text-xs text-blue-600">
-                    Click to auto-fill test account
-                  </p>
-                </div>
+                <div className="h-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 rounded-full animate-shimmer" />
               </div>
-              <ArrowRight className="w-5 h-5 text-blue-500 transform group-hover:translate-x-1 transition-transform" />
+              <p className="text-gray-600 text-sm font-medium flex items-center justify-center lg:justify-start gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                Enter your credentials to access your account
+              </p>
             </div>
-          </div>
 
-          {/* Form */}
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-6 flex-grow flex flex-col"
-          >
-            <InputField
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              icon={Mail}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <InputField
-              type={showPassword ? "text" : "password"}
-              name="password"
-              placeholder="Enter your password"
-              icon={Lock}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              showPasswordToggle
-              onTogglePassword={togglePasswordVisibility}
-            />
+            
 
-            {/* Remember Me */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="sr-only"
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2 opacity-0 animate-slide-in-up delay-500">
+                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-blue-600 animate-pulse-slow" />
+                  Email Address
+                </label>
+                <InputField
+                  type="email"
+                  name="email"
+                  placeholder="your.email@example.com"
+                  icon={Mail}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
-                <div
-                  className={`w-5 h-5 rounded border-2 transition-all duration-200 ${
-                    rememberMe
-                      ? "bg-blue-600 border-blue-600"
-                      : "bg-white border-gray-300"
-                  }`}
+              </div>
+
+              <div className="space-y-2 opacity-0 animate-slide-in-up delay-600">
+                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
+                  <Lock className="w-4 h-4 text-blue-600 animate-pulse-slow" />
+                  Password
+                </label>
+                <InputField
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Enter your password"
+                  icon={Lock}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  showPasswordToggle
+                  onTogglePassword={togglePasswordVisibility}
                 />
-                <span className="text-gray-700 text-sm font-medium">
-                  Remember me
-                </span>
-              </label>
+              </div>
+
+              {/* Remember Me */}
+              
+
               <button
-                type="button"
-                className="text-blue-600 hover:text-blue-700 text-sm font-semibold"
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white font-bold py-3.5 px-6 rounded-xl hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-[1.03] hover:shadow-2xl disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none shadow-lg relative overflow-hidden group opacity-0 animate-slide-in-up delay-800"
               >
-                Forgot password?
+                {/* Button shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+
+                {loading ? (
+                  <div className="flex items-center justify-center space-x-3">
+                    <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                    <span className="font-semibold">Signing you in...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center space-x-2 relative z-10">
+                    <span className="font-semibold">Continue to Dashboard</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+                  </div>
+                )}
               </button>
+            </form>
+
+            {/* Divider */}
+            <div className="relative my-6 opacity-0 animate-fade-in delay-1000">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t-2 border-gray-200" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-gradient-to-br from-white to-gray-50/50 px-4 text-gray-500 font-semibold tracking-wider">
+                  New Here?
+                </span>
+              </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-4 px-6 rounded-2xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl mt-auto"
-            >
-              {loading ? (
-                <div className="flex items-center justify-center space-x-3">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Signing you in...</span>
-                </div>
-              ) : (
-                <div className="flex items-center justify-center space-x-2">
-                  <span>Continue to Dashboard</span>
-                  <ArrowRight className="w-5 h-5" />
-                </div>
-              )}
-            </button>
-          </form>
-
-          <div className="text-center mt-8 pt-6 border-t border-gray-200">
-            <p className="text-gray-600">
-              Don't have an account?{" "}
+            {/* Signup Link */}
+            <div className="text-center opacity-0 animate-slide-in-up delay-1000">
+              <p className="text-gray-600 text-sm font-medium mb-3">
+                Don't have an account yet?
+              </p>
               <button
                 onClick={() => navigate("/signup")}
-                className="text-blue-600 hover:text-blue-700 font-semibold"
+                className="w-full bg-white border-2 border-blue-600 text-blue-600 font-bold py-3.5 px-6 rounded-xl hover:bg-blue-50 hover:border-blue-700 transition-all duration-300 transform hover:scale-[1.03] hover:shadow-lg group relative overflow-hidden"
               >
-                Create account
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                <div className="flex items-center justify-center space-x-2 relative z-10">
+                  <Sparkles className="w-5 h-5 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300" />
+                  <span>Create New Account</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+                </div>
               </button>
-            </p>
+            </div>
+
           </div>
         </div>
       </div>

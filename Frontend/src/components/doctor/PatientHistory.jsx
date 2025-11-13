@@ -168,22 +168,15 @@ const CaseHistoryCard = ({ history, statusColor }) => (
             </div>
             <div>
               <h3 className="font-semibold text-lg text-gray-900">
-                {history.patientInfo?.fullName || "Unknown Patient"}
+                {history.patientInfo?.userId.fullName || "Unknown Patient"}
               </h3>
               <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
                 <span>
-                  {history.patientInfo?.email
-                    ? `Email: ${history.patientInfo.email}`
+                  {history.patientInfo?.userId.email
+                    ? `${history.patientInfo.userId.email}`
                     : ""}
                 </span>
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${statusColor}`}
-                >
-                  {history.status
-                    ? history.status.charAt(0).toUpperCase() +
-                      history.status.slice(1)
-                    : "N/A"}
-                </span>
+               
               </div>
             </div>
           </div>

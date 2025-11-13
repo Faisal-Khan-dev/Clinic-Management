@@ -312,7 +312,10 @@ export const getDoctorCaseHistories = async (req, res) => {
         const histories = await PatientHistory.find({ doctorId })
            .populate({
                 path: "patientId",
-                select: "fullName email phone age gender", // populate patient info
+                populate: {
+                    path: "userId",
+                    select: "fullName email phone age gender",
+                },
             })
             .populate({
                 path: "doctorId",
